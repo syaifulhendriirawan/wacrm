@@ -46,6 +46,20 @@
   --radius-2xl: calc(var(--radius) * 1.8);
   --radius-3xl: calc(var(--radius) * 2.2);
   --radius-4xl: calc(var(--radius) * 2.6);
+
+  /* Map standard slate and white colors to dynamic CSS variables */
+  --color-slate-50: var(--slate-50);
+  --color-slate-100: var(--slate-100);
+  --color-slate-200: var(--slate-200);
+  --color-slate-300: var(--slate-300);
+  --color-slate-400: var(--slate-400);
+  --color-slate-500: var(--slate-500);
+  --color-slate-600: var(--slate-600);
+  --color-slate-700: var(--slate-700);
+  --color-slate-800: var(--slate-800);
+  --color-slate-900: var(--slate-900);
+  --color-slate-950: var(--slate-950);
+  --color-white: var(--white);
 }
 
 /* ============================================================
@@ -88,6 +102,20 @@
   --sidebar-accent-foreground: oklch(0.18 0.01 200);
   --sidebar-border: oklch(0.92 0.008 200);
   --sidebar-ring: oklch(0.48 0.14 162);
+
+  /* Slate and white variables for light mode */
+  --slate-50: oklch(0.13 0.01 200);
+  --slate-100: oklch(0.18 0.01 200);
+  --slate-200: oklch(0.25 0.01 200);
+  --slate-300: oklch(0.35 0.01 200);
+  --slate-400: oklch(0.50 0.015 200);
+  --slate-500: oklch(0.55 0.01 200);
+  --slate-600: oklch(0.65 0.01 200);
+  --slate-700: oklch(0.85 0.01 200);
+  --slate-800: oklch(0.92 0.008 200);
+  --slate-900: oklch(1 0 0);
+  --slate-950: oklch(0.985 0.003 200);
+  --white: oklch(0.18 0.01 200);
 }
 
 /* ============================================================
@@ -128,6 +156,20 @@ html.dark {
   --sidebar-accent-foreground: oklch(0.985 0 0);
   --sidebar-border: oklch(0.285 0.01 200);
   --sidebar-ring: oklch(0.62 0.16 162);
+
+  /* Slate and white variables for dark mode */
+  --slate-50: oklch(0.985 0 0);
+  --slate-100: oklch(0.92 0.008 200);
+  --slate-200: oklch(0.85 0.01 200);
+  --slate-300: oklch(0.65 0.01 200);
+  --slate-400: oklch(0.55 0.01 200);
+  --slate-500: oklch(0.45 0.01 200);
+  --slate-600: oklch(0.35 0.01 200);
+  --slate-700: oklch(0.285 0.01 200);
+  --slate-800: oklch(0.225 0.01 200);
+  --slate-900: oklch(0.185 0.01 200);
+  --slate-950: oklch(0.135 0.01 200);
+  --white: #ffffff;
 }
 
 @layer base {

@@ -9,83 +9,64 @@ import {
   type ReactNode,
 } from "react";
 
-import {
-  DEFAULT_THEME,
-  STORAGE_KEY,
-  isThemeId,
-  type ThemeId,
-} from "@/lib/themes";
-
-/**
- * ThemeProvider — wraps the whole app, owns the active theme state.
- *
- * The boot script in `src/app/layout.tsx` has already applied
- * `document.documentElement.dataset.theme` before React hydrates, so
- * by the time this Provider mounts the page is already painted in
- * the right colors. We just have to read what's there and keep it
- * in sync going forward.
- *
- * Persistence is localStorage only (device-scoped). A future
- * follow-up could mirror to `profiles.preferences` for cross-device
- * sync, but a per-device choice is also defensible — your phone may
- * deserve a different theme than your laptop.
- */
+export type Mode = "light" | "dark";
 
 interface ThemeContextValue {
-  theme: ThemeId;
-  setTheme: (next: ThemeId) => void;
+  mode: Mode;
+  setMode: (next: Mode) => void;
 }
 
 const ThemeContext = createContext<ThemeContextValue | null>(null);
 
-function readInitialTheme(): ThemeId {
-  if (typeof window === "undefined") return DEFAULT_THEME;
-  // Whatever the boot script applied is the truth. Fall back to
-  // localStorage / default if for some reason the attribute is missing
-  // (e.g. someone bypassed the boot script in a custom layout).
-  const fromAttr = document.documentElement.dataset.theme;
-  if (isThemeId(fromAttr)) return fromAttr;
-  try {
-    const stored = localStorage.getItem(STORAGE_KEY);
-    if (isThemeId(stored)) return stored;
-  } catch {
-    // localStorage can throw in private-browsing / sandboxed contexts.
-  }
-  return DEFAULT_THEME;
+const STORAGE_KEY = "waflow.mode";
+
+function readInitialMode(): Mode {
+  if (typeof window === "undefined") return "dark";
+  return document.documentElement.classList.contains("dark") ? "dark" : "light";
 }
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
-  const [theme, setThemeState] = useState<ThemeId>(readInitialTheme);
+  const [mode, setModeState] = useState<Mode>(readInitialMode);
 
-  const setTheme = useCallback((next: ThemeId) => {
-    setThemeState(next);
+  const setMode = useCallback((next: Mode) => {
+    setModeState(next);
     if (typeof document !== "undefined") {
-      document.documentElement.dataset.theme = next;
+      if (next === "dark") {
+        document.documentElement.classList.add("dark");
+        document.documentElement.style.colorScheme = "dark";
+      } else {
+        document.documentElement.classList.remove("dark");
+        document.documentElement.style.colorScheme = "light";
+      }
     }
     try {
       localStorage.setItem(STORAGE_KEY, next);
-    } catch {
-      // Same private-browsing edge case as above; the in-memory state
-      // still updates so the current tab works for the session.
-    }
+    } catch {}
   }, []);
 
-  // Sync from other tabs — if you change your theme in tab A, tab B
-  // catches up without a refresh.
+
+
+  // Sync across tabs
   useEffect(() => {
     function onStorage(e: StorageEvent) {
-      if (e.key !== STORAGE_KEY) return;
-      if (isThemeId(e.newValue) && e.newValue !== theme) {
-        setThemeState(e.newValue);
-        document.documentElement.dataset.theme = e.newValue;
+      if (e.key === STORAGE_KEY && (e.newValue === "light" || e.newValue === "dark") && e.newValue !== mode) {
+        const next = e.newValue as Mode;
+        setModeState(next);
+        if (next === "dark") {
+          document.documentElement.classList.add("dark");
+          document.documentElement.style.colorScheme = "dark";
+        } else {
+          document.documentElement.classList.remove("dark");
+          document.documentElement.style.colorScheme = "light";
+        }
       }
     }
     window.addEventListener("storage", onStorage);
     return () => window.removeEventListener("storage", onStorage);
-  }, [theme]);
+  }, [mode]);
 
   return (
-    <ThemeContext.Provider value={{ theme, setTheme }}>
+    <ThemeContext.Provider value={{ mode, setMode }}>
       {children}
     </ThemeContext.Provider>
   );
@@ -94,12 +75,9 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
 export function useTheme(): ThemeContextValue {
   const ctx = useContext(ThemeContext);
   if (!ctx) {
-    // Fallback for components rendered outside the provider — return a
-    // no-op setter so callers don't crash. The boot script still
-    // applied the right CSS attribute, so visually the page is fine.
     return {
-      theme: DEFAULT_THEME,
-      setTheme: () => {},
+      mode: "dark",
+      setMode: () => {},
     };
   }
   return ctx;

@@ -4,7 +4,6 @@ import Script from "next/script";
 import { Toaster } from "sonner";
 import "./globals.css";
 import { ThemeProvider } from "@/hooks/use-theme";
-import { DEFAULT_THEME, STORAGE_KEY, THEME_IDS } from "@/lib/themes";
 
 const inter = Inter({
   variable: "--font-sans",
@@ -13,8 +12,8 @@ const inter = Inter({
 
 export const metadata: Metadata = {
   title: {
-    default: "wacrm",
-    template: "%s — wacrm",
+    default: "waflow",
+    template: "%s — waflow",
   },
   description: "Self-hostable CRM template for WhatsApp.",
   robots: {
@@ -48,14 +47,18 @@ export const viewport: Viewport = {
 const THEME_BOOT_SCRIPT = `
 (function(){
   try {
-    var STORAGE_KEY = ${JSON.stringify(STORAGE_KEY)};
-    var DEFAULT = ${JSON.stringify(DEFAULT_THEME)};
-    var ALLOWED = ${JSON.stringify(THEME_IDS)};
-    var saved = localStorage.getItem(STORAGE_KEY);
-    var theme = ALLOWED.indexOf(saved) !== -1 ? saved : DEFAULT;
-    document.documentElement.dataset.theme = theme;
+    var savedMode = localStorage.getItem("waflow.mode");
+    var isDark = savedMode === "dark" || (!savedMode && window.matchMedia("(prefers-color-scheme: dark)").matches);
+    if (isDark) {
+      document.documentElement.classList.add("dark");
+      document.documentElement.style.colorScheme = "dark";
+    } else {
+      document.documentElement.classList.remove("dark");
+      document.documentElement.style.colorScheme = "light";
+    }
   } catch (_e) {
-    document.documentElement.dataset.theme = ${JSON.stringify(DEFAULT_THEME)};
+    document.documentElement.classList.add("dark");
+    document.documentElement.style.colorScheme = "dark";
   }
 })();
 `;
@@ -68,14 +71,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      data-theme={DEFAULT_THEME}
       className={`${inter.variable} h-full antialiased`}
-      // The `theme-boot` script below rewrites `data-theme` on <html>
-      // from localStorage before React hydrates, so for any non-default
-      // theme the client DOM intentionally differs from the server-
-      // rendered `DEFAULT_THEME`. suppressHydrationWarning silences the
-      // expected mismatch — it only applies to this element's own
-      // attributes, so genuine mismatches in children still surface.
       suppressHydrationWarning
     >
       <head>

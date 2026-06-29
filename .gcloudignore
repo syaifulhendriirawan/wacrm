@@ -1,0 +1,13 @@
+# gcloud ignore file
+.git
+.github
+node_modules/
+.next/
+*.local
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+plans/
+docs/
+README.md
